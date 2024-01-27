@@ -115,24 +115,24 @@ int	set_and_ready(t_var *args, char **argv)
 	return (1);
 }
 
+void	print_philo(t_philo *philos, char *str)
+{
+	printf("%ld philo[%d] %s\n", get_time() - philos->var->s_time, philos->philo_id, str);
+}
+
 int	check_dead(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->var->mutex);
-    if (philo->var->philosopher_dead == 1 || 
-        (philo->var->number_of_times_each_philosopher_must_eat != -1 &&
-         philo->eat_count >= philo->var->number_of_times_each_philosopher_must_eat))
+    if ((philo->var->time_to_die < (get_time() - philo->var->s_time - philo->last_ate)))
     {
         philo->var->philosopher_dead = 1;
+		printf("die:%d, last_eat:%d, now-eat:%lu ... ->", philo->var->time_to_die, philo->last_ate, (get_time() - philo->var->s_time - philo->last_ate));
+		print_philo(philo, "is dead");
         pthread_mutex_unlock(&philo->var->mutex);
         return 1;
     }
     pthread_mutex_unlock(&philo->var->mutex);
     return 0;
-}
-
-void	print_philo(t_philo *philos, char *str)
-{
-	printf("%ld philo[%d] %s\n", get_time() - philos->var->s_time, philos->philo_id, str);
 }
 
 int	philo_takes_forks(t_philo *philos)
