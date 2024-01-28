@@ -24,6 +24,8 @@ typedef struct s_philo
 	int				eat_count;
 	size_t			last_ate;
 	pthread_mutex_t	l_fork;
+	pthread_mutex_t	eat;
+	pthread_mutex_t	sleep;
 	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	*death;
 	struct s_vars	*vars;

@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "philo.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 int	check_dead(t_vars *vars)
@@ -26,13 +27,15 @@ int	take_fork(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->l_fork);
 	pthread_mutex_lock(philo->death);
+	if (philo->vars->is_dead == 1)
+		return (pthread_mutex_unlock(philo->death), 1);
 	print_time("is taking fork", philo->index, philo->vars);
 	pthread_mutex_unlock(philo->death);
 	pthread_mutex_lock(philo->r_fork);
 	pthread_mutex_lock(philo->death);
+	if (philo->vars->is_dead == 1)
+		return (pthread_mutex_unlock(philo->death), 1);
 	print_time("is taking fork", philo->index, philo->vars);	
-	if (check_dead(philo->vars))
-		return (1);
 	return (0);
 }
 
@@ -41,36 +44,41 @@ int	eat(t_philo *philo)
 	print_time("\033[0;32mis eating", philo->index, philo->vars);
 	pthread_mutex_unlock(philo->death);
 	ft_usleep(philo->vars->time_to_eat);
+	pthread_mutex_lock(philo->death);
 	philo->last_ate = get_time();
+	printf("eat %zu\n", (philo->last_ate));
 	philo->eat_count++;
+	pthread_mutex_unlock(philo->death);
 	pthread_mutex_unlock(&philo->l_fork);
 	pthread_mutex_unlock(philo->r_fork);
-	pthread_mutex_lock(philo->death);
+	if (philo->vars->is_dead == 1)
+		return (pthread_mutex_unlock(philo->death), 1);
 	print_time("is sleeping", philo->index, philo->vars);
-	pthread_mutex_unlock(philo->death);
 	ft_usleep(philo->vars->time_to_sleep);
-	pthread_mutex_lock(philo->death);
+	if (philo->vars->is_dead == 1)
+		return (pthread_mutex_unlock(philo->death), 1);
 	print_time("thinking", philo->index, philo->vars);
-	pthread_mutex_unlock(philo->death);
-	if (check_dead(philo->vars))
-		return (1);
+	pthread_mutex_unlock(philo->death);;
 	return (0);
 }
 
 void	*eat_sleep_repeat(void *arg)
 {
-	t_philo		*philo;
+	t_philo	*philo;
+	t_vars	*vars;
 
 	philo = (t_philo *)arg;
+	vars = philo->vars;
 	if (philo->index % 2 == 0)
 		ft_usleep(10);
 	while (1)
 	{
-		if (philo->eat_count >= philo->vars->max_eat)
+		if (philo->vars->max_eat > -1)
+			if (philo->eat_count >= philo->vars->max_eat)
+				return (NULL);
+		if (vars->is_dead == 1)
 			return (NULL);
-		if (take_fork(philo))
-			return (NULL);
-		if (eat(philo))
+		if (take_fork(philo) || eat(philo))
 			return (NULL);
 	}
 	return (NULL);
@@ -127,18 +135,23 @@ int	philo_fill(int argc, char **argv, t_vars *vars)
 		vars->time_to_eat = ft_atoi(argv[3]);
 		vars->time_to_sleep = ft_atoi(argv[4]);
 		vars->start_time = get_time();
-		if (argc == 6 && max_eat_fill(vars, ft_atoi(argv[5]), i) != 1)
-			return (err_msg("Invalid argument\nArguments must\
-				be positive"), 0);
+		vars->is_dead = 0;
+		if (argc == 6)
+		{
+			if (max_eat_fill(vars, ft_atoi(argv[5]), i) != 1)
+				return (err_msg("Invalid argument\nArguments must\
+					be positive"), 0);
+		}
 		else
 			vars->max_eat = -1;
 	}
 	return (philo_mutex_init(vars));
 }
-
+#include <unistd.h>
 void	die(t_vars *vars, int index)
 {
 	vars->is_dead = 1;
+	write(1, "a\n", 2);
 	print_time("is dead", index, vars);
 }
 #include <stdio.h>
@@ -147,17 +160,24 @@ void	*death_note(void *arg)
 {
 	t_vars	*vars;
 	int		i;
+	int		x;
 
 	vars = (t_vars *)arg;
+	x = 0;
 	while (1)
 	{
 		i = -1;
 		while (++i < vars->count)
 		{
-			printf("%zu\n", vars->philos[i].last_ate);
+			if (x == 0)
+			{
+				ft_usleep(120);
+				printf("death %zu\n", (get_time() - vars->philos[i].last_ate));
+				x++;
+			}
 			pthread_mutex_lock(vars->philos[i].death);
 			if (get_time() - vars->philos[i].last_ate
-				>= vars->time_to_die)
+				> vars->time_to_die)
 				return (die(vars, i), pthread_mutex_unlock(vars->philos[i].death), NULL);
 			pthread_mutex_unlock(vars->philos[i].death);
 		}
