@@ -52,5 +52,7 @@ void	print_time(char *msg, int i, t_vars *vars);
 int		ft_usleep(size_t milliseconds);
 void	*death_note(void *arg);
 void	*eat_sleep_repeat(void *arg);
+int		philo_fill(int argc, char **argv, t_vars *vars);
+int		philo_mutex_init(t_vars *vars);
 
 #endif

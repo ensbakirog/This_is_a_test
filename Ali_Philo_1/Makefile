@@ -2,6 +2,7 @@ NAME = philo
 FLAGS = -pthreads #-pthread -fsanitize=thread -g
 CC = gcc
 SRC = main.c\
+	philo_init.c\
 	utils.c
 
 all :	$(NAME)
