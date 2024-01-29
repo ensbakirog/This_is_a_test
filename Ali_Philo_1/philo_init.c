@@ -25,11 +25,17 @@ static int	max_eat_fill(t_vars *vars, int argv, int i)
 int	philo_mutex_init(t_vars *vars)
 {
 	pthread_mutex_t	death;
+	pthread_mutex_t	sleep;
+	pthread_mutex_t	eat;
 	int				i;
 
 	vars->philos = malloc(sizeof(t_philo) * vars->count);
-	if (!vars->philos && pthread_mutex_init(&death, NULL) != 0)
-		return (0);
+	if (!vars->philos)
+		err_msg("malloc error");
+	if (pthread_mutex_init(&sleep, NULL) != 0
+		|| pthread_mutex_init(&eat, NULL) != 0
+		|| pthread_mutex_init(&death, NULL) != 0)
+			err_msg("mutex init error");
 	i = -1;
 	while (++i < vars->count)
 	{
@@ -40,7 +46,8 @@ int	philo_mutex_init(t_vars *vars)
 		else
 			vars->philos[i].r_fork = &vars->philos[i + 1].l_fork;
 		vars->philos[i].death = &death;
-		vars->death = &death;
+		vars->philos[i].eat = &eat;
+		vars->philos[i].sleep = &sleep;
 		vars->philos[i].eat_count = 0;
 		vars->philos[i].index = i + 1;
 		vars->philos[i].last_ate = get_time();

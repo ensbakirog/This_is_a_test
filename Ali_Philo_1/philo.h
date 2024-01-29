@@ -6,7 +6,7 @@
 /*   By: aaltinto <aaltinto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/26 11:18:59 by aaltinto          #+#    #+#             */
-/*   Updated: 2024/01/26 16:53:22 by aaltinto         ###   ########.fr       */
+/*   Updated: 2024/01/29 18:15:51 by aaltinto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ typedef struct s_philo
 	int				eat_count;
 	size_t			last_ate;
 	pthread_mutex_t	l_fork;
-	pthread_mutex_t	eat;
-	pthread_mutex_t	sleep;
+	pthread_mutex_t	*sleep;
+	pthread_mutex_t	*eat;
 	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	*death;
 	struct s_vars	*vars;
