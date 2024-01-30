@@ -19,7 +19,7 @@ void	die(t_vars *vars, int index)
 	if (pthread_mutex_lock(&vars->death) != 0)
 		err_msg("Error\nMutex can't be locked");
 	vars->is_dead = 1;
-	print_time("\033[0;31mis dead", index, vars);
+	print_time("\033[0;31mdied", index, vars);
 	pthread_mutex_unlock(&vars->death);
 }
 
@@ -46,6 +46,7 @@ void	*death_note(void *arg)
 {
 	t_vars	*vars;
 	int		i;
+	size_t	time;
 
 	vars = (t_vars *)arg;
 	while (1)
@@ -53,17 +54,21 @@ void	*death_note(void *arg)
 		i = -1;
 		while (++i < vars->count)
 		{
-			if (vars->max_eat > -1 && pthread_mutex_lock(&vars->death) != 0)
+			if (vars->max_eat > -1)
+			{
+				if (pthread_mutex_lock(&vars->death) != 0)
+					return (err_msg("Error\nMutex can't be locked"), NULL);
 				if (check_all(vars))
 					return (pthread_mutex_unlock(&vars->death), NULL);
+			}
 			pthread_mutex_unlock(&vars->death);
 			if (pthread_mutex_lock(&vars->eat) != 0)
 				return (err_msg("Error\nMutex can't be locked"), NULL);
-			if (get_time() - vars->philos[i].last_ate
-				> vars->time_to_die)
+			time = get_time() - vars->philos[i].last_ate;
+			pthread_mutex_unlock(&vars->eat);
+			if (time > vars->time_to_die)
 				return (die(vars, i +1), pthread_mutex_unlock(&vars->eat),
 					NULL);
-			pthread_mutex_unlock(&vars->eat);
 		}
 	}
 }

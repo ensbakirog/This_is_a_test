@@ -57,7 +57,7 @@ void	print_time(char *msg, int i, t_vars *vars)
 	size_t	p_time;
 
 	p_time = get_time() - vars->start_time;
-	printf("%ld  [%d]  %s\033[0;37m\n", p_time, i, msg);
+	printf("%ld %d %s\033[0;37m\n", p_time, i, msg);
 }
 
 int	ft_usleep(size_t milliseconds)
