@@ -6,7 +6,7 @@
 /*   By: aaltinto <aaltinto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:26:00 by aaltinto          #+#    #+#             */
-/*   Updated: 2024/01/31 12:35:55 by aaltinto         ###   ########.fr       */
+/*   Updated: 2024/01/31 15:05:31 by aaltinto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,15 +51,15 @@ void	*death_note(void *arg)
 	vars = (t_vars *)arg;
 	while (1)
 	{
+		if (pthread_mutex_lock(&vars->death) != 0)
+			return (err_msg("Error\nMutex can't be locked"), NULL);
+		if (vars->max_eat > -1)
+			if (check_all(vars))
+				return (pthread_mutex_unlock(&vars->death), NULL);
+		pthread_mutex_unlock(&vars->death);
 		i = -1;
 		while (++i < vars->count)
 		{
-			if (pthread_mutex_lock(&vars->death) != 0)
-				return (err_msg("Error\nMutex can't be locked"), NULL);
-			if (vars->max_eat > -1)
-				if (check_all(vars))
-					return (pthread_mutex_unlock(&vars->death), NULL);
-			pthread_mutex_unlock(&vars->death);
 			if (pthread_mutex_lock(&vars->eat) != 0)
 				return (err_msg("Error\nMutex can't be locked"), NULL);
 			time = get_time() - vars->philos[i].last_ate;
@@ -101,7 +101,8 @@ int	main(int argc, char **argv)
 		return (1);
 	threads_id = malloc(sizeof(pthread_t) * (vars.count));
 	if (!threads_id)
-		return (err_msg("malloc err"), abort_mission(&vars, &threads_id), 1);
+		return (err_msg("Error\nMalloc error"),
+			abort_mission(&vars, &threads_id), 1);
 	i = -1;
 	while (++i < vars.count)
 		pthread_create(&threads_id[i], NULL, eat_sleep_repeat, &vars.philos[i]);

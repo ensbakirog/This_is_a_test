@@ -6,7 +6,7 @@
 /*   By: aaltinto <aaltinto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/29 17:34:13 by aaltinto          #+#    #+#             */
-/*   Updated: 2024/01/31 13:34:52 by aaltinto         ###   ########.fr       */
+/*   Updated: 2024/01/31 14:35:59 by aaltinto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,23 +46,19 @@ int	eat(t_philo *philo)
 	if (pthread_mutex_lock(&philo->vars->death) != 0)
 		return (err_msg("Error\nMutex can't be locked"), 1);
 	if (philo->vars->is_dead == 1)
-		return (pthread_mutex_unlock(&philo->vars->death), 1);
+		return (pthread_mutex_unlock(&philo->vars->death),
+			pthread_mutex_unlock(&philo->l_fork),
+			pthread_mutex_unlock(philo->r_fork), 1);
 	pthread_mutex_unlock(&philo->vars->death);
 	print_time("\033[0;32mis eating", philo->index, philo->vars);
 	ft_usleep(philo->vars->time_to_eat);
 	if (pthread_mutex_lock(&philo->vars->eat) != 0)
 		return (err_msg("Error\nMutex can't be locked"), 1);
 	philo->last_ate = get_time();
-	philo->eat_count++;
 	pthread_mutex_unlock(&philo->vars->eat);
 	pthread_mutex_unlock(&philo->l_fork);
 	pthread_mutex_unlock(philo->r_fork);
-	if (pthread_mutex_lock(&philo->vars->death) != 0)
-		return (err_msg("Error\nMutex can't be locked"), 1);
-	if (philo->vars->is_dead == 1)
-		return (pthread_mutex_unlock(&philo->vars->death), 1);
-	pthread_mutex_unlock(&philo->vars->death);
-	return (0);
+	return (philo->eat_count++, 0);
 }
 
 int	sleep_think(t_philo *philo)

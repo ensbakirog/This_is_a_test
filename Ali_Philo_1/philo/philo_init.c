@@ -6,7 +6,7 @@
 /*   By: aaltinto <aaltinto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 16:47:15 by aaltinto          #+#    #+#             */
-/*   Updated: 2024/01/31 12:40:06 by aaltinto         ###   ########.fr       */
+/*   Updated: 2024/01/31 14:23:52 by aaltinto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static int	max_eat_fill(t_vars *vars, int argv, int i)
 
 int	philo_mutex_init(t_vars *vars)
 {
-	int				i;
+	int	i;
 
 	vars->philos = malloc(sizeof(t_philo) * vars->count);
 	if (!vars->philos)
