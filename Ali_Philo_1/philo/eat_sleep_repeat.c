@@ -6,7 +6,7 @@
 /*   By: aaltinto <aaltinto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/29 17:34:13 by aaltinto          #+#    #+#             */
-/*   Updated: 2024/01/29 18:16:36 by aaltinto         ###   ########.fr       */
+/*   Updated: 2024/01/31 13:34:52 by aaltinto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,7 @@ int	take_fork(t_philo *philo)
 			pthread_mutex_unlock(philo->r_fork),
 			pthread_mutex_unlock(&philo->vars->death), 1);
 	pthread_mutex_unlock(&philo->vars->death);
-	print_time("has taken a fork", philo->index, philo->vars);
-	return (0);
+	return (print_time("has taken a fork", philo->index, philo->vars), 0);
 }
 
 int	eat(t_philo *philo)
@@ -95,11 +94,11 @@ void	*eat_sleep_repeat(void *arg)
 		ft_usleep(10);
 	while (1)
 	{
-		if (vars->is_dead == 1 || take_fork(philo) == 1)
+		if (take_fork(philo))
 			return (NULL);
-		if (vars->is_dead == 1 || eat(philo))
+		if (eat(philo))
 			return (NULL);
-		if (vars->is_dead == 1 || sleep_think(philo))
+		if (sleep_think(philo))
 			return (NULL);
 	}
 	return (NULL);

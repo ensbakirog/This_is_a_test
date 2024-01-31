@@ -6,7 +6,7 @@
 /*   By: aaltinto <aaltinto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 16:47:15 by aaltinto          #+#    #+#             */
-/*   Updated: 2024/01/26 17:52:13 by aaltinto         ###   ########.fr       */
+/*   Updated: 2024/01/31 12:40:06 by aaltinto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,8 +56,8 @@ int	philo_fill(int argc, char **argv, t_vars *vars)
 
 	if (ft_atoi(argv[1]) <= 0 || ft_atoi(argv[2]) <= 0 || ft_atoi(argv[3]) <= 0
 		|| ft_atoi(argv[4]) <= 0)
-		return (err_msg("Invalid argument\nArguments must be\
-			unsigned int"), 0);
+		return (err_msg("Invalid argument"),
+			err_msg("Arguments must be unsigned int"), 0);
 	i = -1;
 	while (++i < ft_atoi(argv[1]))
 	{
@@ -70,8 +70,8 @@ int	philo_fill(int argc, char **argv, t_vars *vars)
 		if (argc == 6)
 		{
 			if (max_eat_fill(vars, ft_atoi(argv[5]), i) != 1)
-				return (err_msg("Invalid argument\nArguments must\
-					be positive"), 0);
+				return (err_msg("Invalid argument"),
+					err_msg("Arguments must be positive"), 0);
 		}
 		else
 			vars->max_eat = -1;

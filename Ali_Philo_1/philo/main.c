@@ -6,7 +6,7 @@
 /*   By: aaltinto <aaltinto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:26:00 by aaltinto          #+#    #+#             */
-/*   Updated: 2024/01/29 18:16:36 by aaltinto         ###   ########.fr       */
+/*   Updated: 2024/01/31 12:35:55 by aaltinto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,21 +54,18 @@ void	*death_note(void *arg)
 		i = -1;
 		while (++i < vars->count)
 		{
+			if (pthread_mutex_lock(&vars->death) != 0)
+				return (err_msg("Error\nMutex can't be locked"), NULL);
 			if (vars->max_eat > -1)
-			{
-				if (pthread_mutex_lock(&vars->death) != 0)
-					return (err_msg("Error\nMutex can't be locked"), NULL);
 				if (check_all(vars))
 					return (pthread_mutex_unlock(&vars->death), NULL);
-			}
 			pthread_mutex_unlock(&vars->death);
 			if (pthread_mutex_lock(&vars->eat) != 0)
 				return (err_msg("Error\nMutex can't be locked"), NULL);
 			time = get_time() - vars->philos[i].last_ate;
 			pthread_mutex_unlock(&vars->eat);
 			if (time > vars->time_to_die)
-				return (die(vars, i +1), pthread_mutex_unlock(&vars->eat),
-					NULL);
+				return (die(vars, i +1), NULL);
 		}
 	}
 }
@@ -100,8 +97,9 @@ int	main(int argc, char **argv)
 
 	if (argc < 5 && argc > 6)
 		return (err_msg(ARG_MSG), 1);
-	philo_fill(argc, argv, &vars);
-	threads_id = malloc(sizeof(pthread_t) * (vars.count -1));
+	if (!philo_fill(argc, argv, &vars))
+		return (1);
+	threads_id = malloc(sizeof(pthread_t) * (vars.count));
 	if (!threads_id)
 		return (err_msg("malloc err"), abort_mission(&vars, &threads_id), 1);
 	i = -1;

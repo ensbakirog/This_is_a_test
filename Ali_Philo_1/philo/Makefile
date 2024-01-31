@@ -1,5 +1,5 @@
 NAME = philo
-FLAGS = -pthreads -pthread -fsanitize=thread -g
+FLAGS = -pthread #-fsanitize=thread -g
 CC = gcc
 SRC = main.c\
 	philo_init.c\
